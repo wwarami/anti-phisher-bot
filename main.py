@@ -7,10 +7,12 @@ from aiogram import Dispatcher
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from src.bot import tele_bot
 from src.database import init_db, AsyncDatabaseManager
+from src.check_url_bot import main_router
 
 
 async def start_bot():
     DATABASE_URL = os.getenv('DATABASE_URL')
+    print(f'Database url', DATABASE_URL)
     DB_ENGINE = await init_db(database_url=DATABASE_URL)
     async_session = async_sessionmaker(DB_ENGINE, expire_on_commit=False)
     database_manager_instance = AsyncDatabaseManager(async_session=async_session)
@@ -18,6 +20,7 @@ async def start_bot():
     dp = Dispatcher()
     bot = tele_bot
 
+    dp.include_router(main_router)
     await dp.start_polling(bot)
 
 
