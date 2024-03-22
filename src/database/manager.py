@@ -24,9 +24,9 @@ class AsyncDatabaseManager:
             self._is_initialized = True
 
 
-    async def create_url(self, url_string: str) -> Url:
+    async def create_url(self, url_string: str, is_valid: bool) -> Url:
         async with self.async_session() as session:
-            url = Url(url_string=url_string)
+            url = Url(url_string=url_string, is_valid=is_valid)
             session.add(url)
             await session.commit()
             return url
@@ -93,7 +93,11 @@ class AsyncDatabaseManager:
     
     async def get_recheck_request_with_id(self, recheck_request_id: int) -> UrlRecheckRequest:
         async with self.async_session() as session:
-            query = select(UrlRecheckRequest).filter(UrlRecheckRequest.id == recheck_request_id)
+            query = select(
+                UrlRecheckRequest
+                ).filter(
+                    UrlRecheckRequest.id == recheck_request_id
+                    ).options(selectinload(UrlRecheckRequest.url))
             result = await session.execute(query)
             recheck_request = result.scalars().first()
             return recheck_request
@@ -107,7 +111,12 @@ class AsyncDatabaseManager:
                                 only_request_date_after: datetime = None,
                                 only_checked_date_after: datetime = None) -> List[UrlRecheckRequest]:
         async with self.async_session() as session:
-            query = select(UrlRecheckRequest)
+            query = select(
+                UrlRecheckRequest
+                ).options(
+                    selectinload(
+                        UrlRecheckRequest.url
+                        ))
 
             if from_user_id:
                 query = query.filter(UrlRecheckRequest.from_user_id == from_user_id)

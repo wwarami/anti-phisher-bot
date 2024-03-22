@@ -1,3 +1,4 @@
+import pytz
 from src.database import AsyncDatabaseManager
 from aiogram import Bot, Router, F
 from aiogram.filters import CommandStart
@@ -41,7 +42,7 @@ async def handle_check_url(message: Message, state: FSMContext):
     await message.answer(BotMessages().check_url, reply_markup=generate_cancel_keyboard())
 
 
-@main_router.message(UrlCheckRequestState.url)
+@main_router.message(UrlCheckRequestState.url, F.text != '🔙 بازگشت')
 async def check_url_state(message: Message, state: FSMContext):
     is_verified = await verify_user(message)
     if not is_verified: return
@@ -54,7 +55,8 @@ async def check_url_state(message: Message, state: FSMContext):
     is_https = check_for_https_url(url)
     is_valid_psp = check_for_psp(url)
 
-    url_db = await AsyncDatabaseManager().create_url(url_string=url)
+    url_db = await AsyncDatabaseManager().create_url(url_string=url, 
+                                                     is_valid=True if is_valid_psp else False)
     await state.update_data(url=url_db.id)
     await state.set_state(UrlCheckRequestState.recheck_request)
 
@@ -69,7 +71,7 @@ async def check_url_state(message: Message, state: FSMContext):
     )
 
 
-@main_router.message(UrlCheckRequestState.recheck_request and F.text == "🔁 درخواست بررسی دوباره آدرس")
+@main_router.message(UrlCheckRequestState.recheck_request, F.text == "🔁 درخواست بررسی دوباره آدرس")
 async def handle_recheck_request(message: Message, state: FSMContext):
     is_verified = await verify_user(message)
     if not is_verified: return
@@ -87,6 +89,35 @@ async def handle_recheck_request(message: Message, state: FSMContext):
 async def handle_cancel_command(message: Message, state: FSMContext):
     await state.clear()
     await message.answer('<b> ✨ عملیات جاری کنسل شد. </b>', reply_markup=generate_defualt_keyboard())
+
+
+@main_router.message(F.text == "🔁 درخواست های بررسی من")
+async def handle_view_recheck_requests(message: Message):
+    is_verified = await verify_user(message)
+    if not is_verified: return
+    print('HERE!')
+    report_list = []
+    user_recheck_requests = await AsyncDatabaseManager().get_recheck_requests(from_user_id=message.from_user.id)
+    for recheck_request in user_recheck_requests:
+        request_date_str = recheck_request.request_date.strftime("%m/%d/%Y, %H:%M:%S")
+        checked_date_str = recheck_request.checked_date.strftime("%m/%d/%Y, %H:%M:%S") if recheck_request.checked_date else '<code>هنوز بررسی نشده است.</code>'
+        report_list.append(
+            BotMessages().recheck_request_report.format(
+                id=recheck_request.id,
+                url_id=recheck_request.url_id,
+                url_string=recheck_request.url.url_string,
+                first_result='✅' if recheck_request.url.is_valid else '❌',
+                is_checked= '✅' if recheck_request.is_checked else '❌',
+                new_is_valid= '✅' if recheck_request.new_is_valid else '❌',
+                request_date=request_date_str,
+                checked_date=checked_date_str
+            )
+        )
+    
+    await message.answer(
+        BotMessages().recheck_requests_reports.format(
+            recheck_requests_reports='\n'.join(report_list)
+            ))
 
 
 @main_router.callback_query(F.data == "check_am_i_joined")

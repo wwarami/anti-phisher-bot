@@ -1,0 +1,9 @@
+آیدی درخواست: {id}
+آیدی آدرس بررسی شده: {url_id}
+آدرس: <code>{url_string}</code>
+نتیجه بررسی اولیه: {first_result}
+دوباره بررسی شده: {is_checked}
+نتیجه بررسی دوباره: {new_is_valid}
+تاریخ ثبت درخواست: {request_date}
+تاریخ بررسی دوباره: {checked_date}
+➖➖➖➖➖➖➖➖➖➖➖
