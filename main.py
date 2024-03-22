@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from src.bot import tele_bot
 from src.database import init_db, AsyncDatabaseManager
 from src.check_url_bot import main_router
+from src.cli.manager import CliManager
 
 
 async def start_bot():
@@ -24,7 +25,13 @@ async def start_bot():
 
 
 async def start_cli():
-    raise NotImplementedError()
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    DB_ENGINE = await init_db(database_url=DATABASE_URL)
+    async_session = async_sessionmaker(DB_ENGINE, expire_on_commit=False)
+    database_manager_instance = AsyncDatabaseManager(async_session=async_session)
+    
+    cli_manager = CliManager()
+    await cli_manager.start()
 
 
 async def main():
