@@ -95,7 +95,6 @@ async def handle_cancel_command(message: Message, state: FSMContext):
 async def handle_view_recheck_requests(message: Message):
     is_verified = await verify_user(message)
     if not is_verified: return
-    print('HERE!')
     report_list = []
     user_recheck_requests = await AsyncDatabaseManager().get_recheck_requests(from_user_id=message.from_user.id)
     for recheck_request in user_recheck_requests:
@@ -117,7 +116,16 @@ async def handle_view_recheck_requests(message: Message):
     await message.answer(
         BotMessages().recheck_requests_reports.format(
             recheck_requests_reports='\n'.join(report_list)
-            ))
+            ), reply_markup=generate_defualt_keyboard())
+
+
+@main_router.message(F.text == "📋 درمورد آنتی فیشر")
+async def handle_about_anti_phisher(message: Message, state: FSMContext):
+    await state.clear()
+    is_verified = await verify_user(message)
+    if not is_verified: return
+
+    await message.answer(BotMessages().about_anti_phisher, reply_markup=generate_defualt_keyboard())
 
 
 @main_router.callback_query(F.data == "check_am_i_joined")
