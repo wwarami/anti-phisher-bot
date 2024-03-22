@@ -42,7 +42,12 @@ async def handle_check_url(message: Message, state: FSMContext):
     await message.answer(BotMessages().check_url, reply_markup=generate_cancel_keyboard())
 
 
-@main_router.message(UrlCheckRequestState.url, F.text != '🔙 بازگشت')
+@main_router.message(UrlCheckRequestState.url, 
+                     F.text != '🔙 بازگشت', 
+                     F.text != "🔁 درخواست بررسی دوباره آدرس",
+                     F.text != "🔗 بررسی آدرس",
+                     F.text != "🔁 درخواست های بررسی من",
+                     F.text != "📋 درمورد آنتی فیشر")
 async def check_url_state(message: Message, state: FSMContext):
     is_verified = await verify_user(message)
     if not is_verified: return

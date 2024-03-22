@@ -2,7 +2,7 @@ import os
 import sys
 from src.database import AsyncDatabaseManager
 from rich.console import Console
-from src.cli.utils import print_banner
+from src.cli.utils import print_banner, send_recheck_request_response_to_user
 
 
 class CliManager:
@@ -228,7 +228,8 @@ class CliManager:
                 else:
                     self.ri.print(' *Please enter a valid character (Use "ctrl + c" to cancel.)', style="red bold")
             
-            await AsyncDatabaseManager().update_recheck_request(recheck_request_id=recheck_request.id, new_is_valid=new_is_valid)
+            updated_recheck_request = await AsyncDatabaseManager().update_recheck_request(recheck_request_id=recheck_request.id, new_is_valid=new_is_valid)
+            await send_recheck_request_response_to_user(recheck_request=updated_recheck_request)
             self.ri.print('Updated (Press enter to continue): ', end='', style='green bold')
             input()
 
