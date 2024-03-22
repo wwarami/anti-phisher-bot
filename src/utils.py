@@ -30,6 +30,9 @@ def check_for_https_url(url: str):
 
 def check_for_psp(url: str):
     hostname = urlparse(url).hostname
+    if hostname.startswith("www"):
+        hostname = hostname[4:]
+        
     psp_provider_name = IRANIAN_PSP_LIST.get(hostname, None)
     if psp_provider_name is None:
         return False
