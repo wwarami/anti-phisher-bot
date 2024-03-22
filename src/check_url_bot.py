@@ -79,8 +79,8 @@ async def handle_recheck_request(message: Message, state: FSMContext):
     url_id = state_data.get("url")
     await state.clear()
     if url_id:
-        await AsyncDatabaseManager().create_recheck_request(from_user_id=message.from_user.id, url_id=url_id)
-        await message.answer(BotMessages().success_recheck_request, reply_markup=generate_defualt_keyboard())
+        recheck_request = await AsyncDatabaseManager().create_recheck_request(from_user_id=message.from_user.id, url_id=url_id)
+        await message.answer(BotMessages().success_recheck_request.format(recheck_request_id=recheck_request.id), reply_markup=generate_defualt_keyboard())
     else:
         await message.answer(BotMessages().failed_recheck_request, reply_markup=generate_defualt_keyboard())
     
