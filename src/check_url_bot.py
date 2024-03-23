@@ -119,8 +119,7 @@ async def handle_view_recheck_requests(message: Message):
         )
     
     # Chopping the message in case it's too long
-    # text_answer: str = BotMessages().recheck_requests_reports.format(recheck_requests_reports='\n'.join(report_list))
-    text_answer: str = "a"*5000
+    text_answer: str = BotMessages().recheck_requests_reports.format(recheck_requests_reports='\n'.join(report_list))
     while len(text_answer) != 0:
         await message.answer(text_answer[0:4096], reply_markup=generate_defualt_keyboard())
         text_answer = text_answer[4096:]
