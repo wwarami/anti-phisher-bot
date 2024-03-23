@@ -49,7 +49,7 @@ async def check_url_state(message: Message, state: FSMContext):
     is_verified = await verify_user(message)
     if not is_verified: return
 
-    if message.text is None:
+    if message.text is None or len(message.text) > 2048:
         await message.reply('❌ لطفا یک آدرس معتبر وارد کنید.')
         return
     
@@ -98,7 +98,10 @@ async def handle_view_recheck_requests(message: Message):
     is_verified = await verify_user(message)
     if not is_verified: return
     report_list = []
-    user_recheck_requests = await AsyncDatabaseManager().get_recheck_requests(from_user_id=message.from_user.id)
+    user_recheck_requests = await AsyncDatabaseManager().get_recheck_requests(
+        from_user_id=message.from_user.id,
+        only_last=5)
+    
     for recheck_request in user_recheck_requests:
         request_date_str = recheck_request.request_date.strftime("%m/%d/%Y, %H:%M:%S")
         checked_date_str = recheck_request.checked_date.strftime("%m/%d/%Y, %H:%M:%S") if recheck_request.checked_date else '<code>هنوز بررسی نشده است.</code>'
@@ -115,10 +118,12 @@ async def handle_view_recheck_requests(message: Message):
             )
         )
     
-    await message.answer(
-        BotMessages().recheck_requests_reports.format(
-            recheck_requests_reports='\n'.join(report_list)
-            ), reply_markup=generate_defualt_keyboard())
+    # Chopping the message in case it's too long
+    # text_answer: str = BotMessages().recheck_requests_reports.format(recheck_requests_reports='\n'.join(report_list))
+    text_answer: str = "a"*5000
+    while len(text_answer) != 0:
+        await message.answer(text_answer[0:4096], reply_markup=generate_defualt_keyboard())
+        text_answer = text_answer[4096:]
 
 
 @main_router.message(F.text == "📋 درمورد آنتی فیشر")

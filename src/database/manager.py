@@ -1,4 +1,4 @@
-from sqlalchemy import select, and_, delete
+from sqlalchemy import select, and_, delete, desc
 from sqlalchemy.orm import selectinload
 from typing import List
 from datetime import datetime
@@ -46,9 +46,13 @@ class AsyncDatabaseManager:
                        only_with_recheck_request=False, 
                        only_with_out_recheck_request=False,
                        only_after: datetime = None,
-                       only_before: datetime = None) -> List[Url]:
+                       only_before: datetime = None, 
+                       only_last: int = None) -> List[Url]:
         async with self.async_session() as session:
-            query = select(Url)
+            query = select(Url).order_by(
+                desc(Url.checked_date
+                     )).options(
+                         selectinload(Url.recheck_request))
             
             if only_valids:
                 query = query.filter(Url.is_valid == True)
@@ -65,8 +69,9 @@ class AsyncDatabaseManager:
                 query = query.filter(Url.checked_date > only_after)
             elif only_before:
                 query = query.filter(Url.checked_date < only_before)
-
-            query = query.options(selectinload(Url.recheck_request))
+                   
+            if only_last is not None:
+                query = query.limit(only_last)
 
             result = await session.execute(query)
             urls = result.scalars().all()
@@ -109,14 +114,16 @@ class AsyncDatabaseManager:
                                 only_new_valid: bool = False,
                                 only_new_unvalid: bool = False,
                                 only_request_date_after: datetime = None,
-                                only_checked_date_after: datetime = None) -> List[UrlRecheckRequest]:
+                                only_checked_date_after: datetime = None,
+                                only_last: int = None) -> List[UrlRecheckRequest]:
         async with self.async_session() as session:
             query = select(
                 UrlRecheckRequest
                 ).options(
                     selectinload(
                         UrlRecheckRequest.url
-                        ))
+                        )).order_by(
+                            desc(UrlRecheckRequest.request_date))
 
             if from_user_id:
                 query = query.filter(UrlRecheckRequest.from_user_id == from_user_id)
@@ -133,6 +140,9 @@ class AsyncDatabaseManager:
             if only_checked_date_after:
                 query = query.filter(and_(UrlRecheckRequest.is_checked == True, UrlRecheckRequest.checked_date > only_checked_date_after))
 
+            if only_last is not None:
+                query = query.limit(only_last)
+            
             result = await session.execute(query)
             recheck_requests = result.scalars().all()
             return recheck_requests
