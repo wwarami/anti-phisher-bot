@@ -1,4 +1,3 @@
-import pytz
 from src.database import AsyncDatabaseManager
 from aiogram import Bot, Router, F
 from aiogram.filters import CommandStart
@@ -22,8 +21,6 @@ class UrlCheckRequestState(StatesGroup):
     recheck_request = State()
 
 CHANNELS = [
-    "@sevlighter",
-    "@whybots"
 ]
 
 
