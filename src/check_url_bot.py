@@ -159,7 +159,7 @@ async def check_joined_channels(bot: Bot, user_id: str, channel_ids=CHANNELS):
             if member.status.value in ["creator", "administrator", "member"]:pass
             else: return False
     except Exception as ex:
-        raise ex
+        return False
     else:
         return True
 
