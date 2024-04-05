@@ -11,7 +11,7 @@ BANNER ="""
 /_/   \_\_| |_|\__|_| |_|   |_| |_|_|___/_| |_|\___|_|"""
 CRIDETIALS = """\u001b[34m
 Developed By: wwaramii
-Email: wwaramii@gmail.com
+From: https://t.me/wwow_bots
 Project Github: https://github.com/wwarami/anti-phisher-bot
 """
 FLAG = """

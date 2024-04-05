@@ -1,6 +1,6 @@
 # Anti Phisher Telegram Bot
 Prevent phishing attacks!
-**Telegram bot: [@antiphisherbot](https://t.me/antiphisherbot)**
+**Telegram bot: [@antiphisher_bot](https://t.me/antiphisher_bot)**
 ```terminal
     _          _   _   ____  _     _     _               
    / \   _ __ | |_(_) |  _ \| |__ (_)___| |__   ___ _ __ 
@@ -8,7 +8,5 @@ Prevent phishing attacks!
  / ___ \| | | | |_| | |  __/| | | | \__ \ | | |  __/ |   
 /_/   \_\_| |_|\__|_| |_|   |_| |_|_|___/_| |_|\___|_|
 
-Developed By: wwaramii
-Email: wwaramii@gmail.com
-Project Github: https://github.com/wwarami/anti-phisher-bot
+From: https://t.me/wwow_bots
 ```
